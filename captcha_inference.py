@@ -48,7 +48,7 @@ class CaptchaSolver:
         return captcha
 
 if __name__ == '__main__':
-    captchaSolver = CaptchaSolver('models/prediction_captcha_model2.h5', 'models/num_to_char_model.h5')
+    captchaSolver = CaptchaSolver('models/prediction_captcha_model.h5', 'models/num_to_char_model.h5')
 
     image = cv2.imread('data/captcha_dataset/1EbzUd.png', cv2.IMREAD_GRAYSCALE)
     print(captchaSolver.solveCaptcha(image))
