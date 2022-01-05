@@ -2,24 +2,15 @@ from keras.models import load_model
 import tensorflow as tf
 import numpy as np
 import keras
-import pickle
 import cv2
 
 class CaptchaSolver:
     def __init__(self, model_path, char_path):
         self.model = load_model(model_path)
         self.MAX_LENGTH = 6 # Num of characteres on a captcha
-        self.characters = pickle.load(open(char_path, 'rb'))
-
-        # Mapping characters to integers
-        self.char_to_num = keras.layers.StringLookup(
-            vocabulary=list(self.characters), mask_token=None
-        )
 
         # Mapping integers back to original characters
-        self.num_to_char = keras.layers.StringLookup(
-            vocabulary=self.char_to_num.get_vocabulary(), mask_token=None, invert=True
-        )
+        self.num_to_char_model = load_model(char_path)
 
     # A utility function to decode the output of the network
     def decode_batch_predictions(self, pred):
@@ -29,7 +20,7 @@ class CaptchaSolver:
         # Iterate over the results and get back the text
         output_text = []
         for res in results:
-            res = tf.strings.reduce_join(self.num_to_char(res)).numpy().decode("utf-8")
+            res = tf.strings.reduce_join(self.num_to_char_model(res)).numpy().decode("utf-8")
             output_text.append(res)
         return output_text
 
@@ -48,7 +39,16 @@ class CaptchaSolver:
 
     def solveCaptcha(self, image):
         image = self.morphologyFilter(image)
-        preds = self.model.predict(image)
+        image = image.astype(np.float32) / 255.0
+        image = np.expand_dims(image, axis=-1)
+        image = np.transpose(image, axes=(1, 0, 2))
+        preds = self.model.predict(np.expand_dims(image, axis=0))
         captcha = self.decode_batch_predictions(preds)
 
         return captcha
+
+if __name__ == '__main__':
+    captchaSolver = CaptchaSolver('models/prediction_captcha_model2.h5', 'models/num_to_char_model.h5')
+
+    image = cv2.imread('data/captcha_dataset/1EbzUd.png', cv2.IMREAD_GRAYSCALE)
+    print(captchaSolver.solveCaptcha(image))
