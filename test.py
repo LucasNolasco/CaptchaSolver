@@ -4,7 +4,6 @@ import cv2
 import glob
 
 def main():
-    # img = cv2.imread('data/captcha_dataset/1EbzUd.png')
     for addr in glob.glob('data/captcha_dataset/*.png'):
         img = cv2.imread(addr)
         _, im_arr = cv2.imencode('.png', img)
@@ -16,9 +15,14 @@ def main():
         }
 
         response = requests.post("http://localhost:5000/captcha", json=payload)
+        # response = requests.post("https://captchasolver-uvk2pv2hja-ue.a.run.app/captcha", json=payload)
 
-        ground_truth = addr.replace(".png", "")[-6:].lower()
-        print("Correct: {0}, Predicted: {1}".format(ground_truth, response.json()['captcha']))
+        if response.status_code == 200:
+            ground_truth = addr.replace(".png", "")[-6:].lower()
+            print("Correct: {0}, Predicted: {1}".format(ground_truth, response.json()['captcha']))
+        elif response.status_code == 400 or response.status_code == 500:
+            print(response.reason)
+
 
 if __name__ == '__main__':
     main()

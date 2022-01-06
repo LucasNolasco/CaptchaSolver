@@ -38,6 +38,7 @@ class CaptchaSolver:
         return image
 
     def solveCaptcha(self, image):
+        image = cv2.resize(image, (180, 50))
         image = self.morphologyFilter(image)
         image = image.astype(np.float32) / 255.0
         image = np.expand_dims(image, axis=-1)
