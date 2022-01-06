@@ -44,4 +44,4 @@ $ docker run -p 5000:5000 --name captcha-api captcha-api:latest
 
 ## Documentation
 
-With the server running, the API documentation may be found on http://localhost:5000/apidocs (or any other base url where the server is running).
+With the server running, the API documentation may be found on http://localhost:5000/docs (or any other base url where the server is running).

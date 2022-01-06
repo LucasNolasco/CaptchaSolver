@@ -12,16 +12,29 @@ captchaSolver = CaptchaSolver('models/prediction_captcha_model.h5', 'models/num_
 app.config['SWAGGER'] = {
     'title': 'Captcha Solver',
     'description': 'API for captcha solving. It only works for captchas with 6 characters.',
-    'version': '0.1.0'
+    'version': '0.1.0',
 }
 
-swagger = Swagger(app)
-CORS(app)
+# Default config (Source: https://github.com/flasgger/flasgger#customize-default-configurations)
+swagger_config = {
+    "headers": [
+    ],
+    "specs": [
+        {
+            "endpoint": 'apispec_1',
+            "route": '/apispec_1.json',
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    # "static_folder": "static",  # must be set by user
+    "swagger_ui": True,
+    "specs_route": "/docs/"
+}
 
-@app.route('/')
-@app.route('/docs')
-def docRedirect():
-    return redirect('http://localhost:5000/' + 'apidocs')
+swagger = Swagger(app, config=swagger_config)
+CORS(app)
 
 @app.route("/captcha", methods=['POST'])
 @swag_from(specs="schemas/captcha.yml", validation=True)
